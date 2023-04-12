@@ -10,6 +10,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 
 @Configuration
 public class SecurityConfig {
@@ -35,8 +36,7 @@ public class SecurityConfig {
 		.requestMatchers("/Register").permitAll()
 		.anyRequest()
 		.authenticated()
-		.and()
-		.oauth2Login();
+		.and().httpBasic();
 		return httpSecurity.build();
 	}
 
