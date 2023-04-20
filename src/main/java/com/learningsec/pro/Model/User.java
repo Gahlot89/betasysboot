@@ -1,5 +1,7 @@
 package com.learningsec.pro.Model;
 
+import org.springframework.stereotype.Component;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -8,6 +10,7 @@ import jakarta.persistence.Lob;
 import jakarta.persistence.Table;
 import jakarta.persistence.Transient;
 
+@Component
 @Entity
 @Table(name = "USER_DATA")
 public class User {

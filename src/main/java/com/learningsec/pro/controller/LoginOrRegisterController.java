@@ -8,7 +8,11 @@ import java.util.Random;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -25,12 +29,17 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.learningsec.pro.Model.AuthModel;
 import com.learningsec.pro.Model.CommonResponse;
+import com.learningsec.pro.Model.LoginCredential;
 import com.learningsec.pro.Model.User;
 import com.learningsec.pro.Utility.EmailUtility;
 import com.learningsec.pro.Utility.ImageUtility;
+import com.learningsec.pro.Utility.JWTUtility;
+import com.learningsec.pro.configuration.UserDetailServiceClass;
 import com.learningsec.pro.services.AuthService;
 import com.learningsec.pro.services.LoginOrRegisterService;
 
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.Jwts;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 
@@ -50,9 +59,19 @@ public class LoginOrRegisterController {
 	@Autowired
 	AuthService authService;
 	
-		
 	@Autowired
 	LoginOrRegisterService loginRegisterService;
+	
+	
+	@Autowired
+	AuthenticationManager authenticationManager;
+	
+	
+	@Autowired
+	UserDetailServiceClass userDetailServiceClass;
+	
+	@Autowired
+	JWTUtility jwtUtility;
 	
 	
 	@Autowired
@@ -92,6 +111,24 @@ public class LoginOrRegisterController {
 	
 	
 	
+	@RequestMapping(value = "/UserLogin",method = RequestMethod.POST)
+	public CommonResponse UserLogin(@RequestBody LoginCredential loginCredential) {
+		String status = generateToken(loginCredential.getEmail(),loginCredential.getPassword());
+		if(status.contains("Failed")) {
+			response.setMessage("Invalid Credentials");
+			response.setStatus("Failed");
+			response.setData(status);
+		}else {
+			response.setMessage("Authorized User");
+			response.setStatus("Success");
+			response.setData(status);
+		}
+		
+		return response;
+	}
+	
+	
+	
 	
 	@PostMapping("/EmailOTPVerification")
 	public CommonResponse emailOTPVerification(@RequestBody AuthModel authModel){
@@ -122,6 +159,9 @@ public class LoginOrRegisterController {
     }
 	
 	
+	
+	
+	
 	@RequestMapping(value = "/Register",method = RequestMethod.POST)
 	public CommonResponse Register(@RequestParam("profile") MultipartFile profile,@RequestParam("model") String jsonObject){
 		
@@ -142,7 +182,24 @@ public class LoginOrRegisterController {
 			e.printStackTrace();
 		}
 		
-		return loginRegisterService.registerUser(user);
+		response = loginRegisterService.registerUser(user);
+		
+		
+		return response;
 	
 	}
+	
+	
+	public String generateToken(String email,String password) {
+		
+		try {
+			Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(email, password));
+			return jwtUtility.generateToken(email);
+		}catch (Exception e) {
+			return "Failed "+e.getMessage();
+		}
+			
+	}
+	
+
 }

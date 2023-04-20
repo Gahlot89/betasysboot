@@ -25,10 +25,19 @@ public class UserController {
 	UserService userService;
 	
 	
+	
 
 	@RequestMapping(value = "/getUserProfile",method = RequestMethod.GET)
 	private User getUser(@RequestParam("email") String  email) {
-		return userService.getUserData(email);
+		User user = null;
+		try {
+			user = userService.getUserData(email);
+		}catch (Exception e) {
+			user.setMessage(e.getMessage());
+			user.setStatus("Failed");
+		}
+		
+		return user;
 	}
 	
 }

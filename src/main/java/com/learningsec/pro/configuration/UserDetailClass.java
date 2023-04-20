@@ -14,7 +14,6 @@ public class UserDetailClass implements UserDetails {
 	private User user;
 
 	public UserDetailClass(User user) {
-		super();
 		this.user = user;
 	}
 
