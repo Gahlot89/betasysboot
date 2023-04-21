@@ -21,27 +21,16 @@ public class UserService {
 	
 	public User getUserData(String email) {
 		
-		User user = null;
+		User user = userRepository.findByEmail(email);
 		
-		try {
-			user = userRepository.findByEmail(email);
-			
-			if(user!=null) {
-				user.setProfile(imageUtility.decompressImage(user.getProfile()));
-				return user;
-			}else {
-				user.setMessage("User Not Exist");
-				user.setMessage("OK");
-				return user;
-			}
-			
-		}catch (Exception e) {
-			user.setMessage(e.getMessage());
+		if(user!=null) {
+			user.setProfile(imageUtility.decompressImage(user.getProfile()));
+			return user;
+		}else {
+			user.setMessage("User Not Exist");
 			user.setMessage("OK");
 			return user;
 		}
-		
-		
 	}
 	
 }

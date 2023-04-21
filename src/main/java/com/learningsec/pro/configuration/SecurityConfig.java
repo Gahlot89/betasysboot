@@ -32,6 +32,10 @@ public class SecurityConfig {
 	@Autowired
 	JWTAuthFilter jwtAuthFilter;
 	
+	
+	@Autowired
+	JWTAuthenticationEntryPoint entryPoint;
+	
 	@Bean
 	public BCryptPasswordEncoder passwordEncoder() {
 		return new BCryptPasswordEncoder();
@@ -50,7 +54,7 @@ public class SecurityConfig {
 		httpSecurity.csrf().disable()
 		.authorizeHttpRequests()
 		.requestMatchers("/Register").permitAll()
-		.requestMatchers("/UserLogin").permitAll()
+		.requestMatchers("/UserLogin","/Project/**").permitAll()
 		.anyRequest()
 		.authenticated()
 		.and()
@@ -58,9 +62,8 @@ public class SecurityConfig {
 		.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
 		.and()
 		.authenticationProvider(authenticationProvider())
+		.exceptionHandling().authenticationEntryPoint(entryPoint).and()
 		.addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
-		
-		
 		return httpSecurity.build();
 	}
 	
@@ -74,19 +77,19 @@ public class SecurityConfig {
 		return authenticationProvider;
 	}
 	
-//	@Bean
-//	CorsConfigurationSource corsConfigurationSource() {
-//	  CorsConfiguration configuration = new CorsConfiguration();
-//	  configuration.setAllowedOrigins(Arrays.asList("http://localhost:3000"));
-//	  configuration.setAllowedMethods(Arrays.asList("GET","POST","PATCH", "PUT", "DELETE", "OPTIONS", "HEAD"));
-//	  configuration.setAllowCredentials(true);
-//	  configuration.setAllowedHeaders(Arrays.asList("Authorization", "Requestor-Type"));
-//	  configuration.setExposedHeaders(Arrays.asList("X-Get-Header"));
-//	  configuration.setMaxAge(3600L);
-//	  UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-//	  source.registerCorsConfiguration("/**", configuration);
-//	  return source;
-//	}
+	@Bean
+	CorsConfigurationSource corsConfigurationSource() {
+	  CorsConfiguration configuration = new CorsConfiguration();
+	  configuration.setAllowedOrigins(Arrays.asList("http://localhost:3000"));
+	  configuration.setAllowedMethods(Arrays.asList("GET","POST","PATCH", "PUT", "DELETE", "OPTIONS", "HEAD"));
+	  configuration.setAllowCredentials(true);
+	  configuration.setAllowedHeaders(Arrays.asList("Authorization", "Requestor-Type"));
+	  configuration.setExposedHeaders(Arrays.asList("X-Get-Header"));
+	  configuration.setMaxAge(3600L);
+	  UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+	  source.registerCorsConfiguration("/**", configuration);
+	  return source;
+	}
 	
 	@Bean
 	public AuthenticationManager authenticationManager(AuthenticationConfiguration configuration) throws Exception {
