@@ -54,7 +54,7 @@ public class SecurityConfig {
 		httpSecurity.csrf().disable()
 		.authorizeHttpRequests()
 		.requestMatchers("/Register").permitAll()
-		.requestMatchers("/UserLogin","/Project/**").permitAll()
+		.requestMatchers("/UserLogin","/Project/**","/Module/**").permitAll()
 		.anyRequest()
 		.authenticated()
 		.and()
